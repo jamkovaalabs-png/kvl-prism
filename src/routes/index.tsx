@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Lenis from "lenis";
 import heroOrb from "@/assets/hero-orb.jpg";
 import layerShards from "@/assets/layer-shards.jpg";
 import wireSphere from "@/assets/wire-sphere.jpg";
@@ -16,8 +17,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "KVL — Premium digital agency" },
       {
         property: "og:description",
-        content:
-          "Websites, brand systems and social media — engineered with taste. By Kovaa Labs.",
+        content: "Websites, brand systems and social media — engineered with taste. By Kovaa Labs.",
       },
     ],
   }),
@@ -25,6 +25,22 @@ export const Route = createFileRoute("/")({
 });
 
 /* ─────────────────────────── helpers ─────────────────────────── */
+
+function useLenis() {
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      touchMultiplier: 2,
+    });
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+    return () => lenis.destroy();
+  }, []);
+}
 
 function useReveal<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -73,6 +89,141 @@ function useMouseParallax() {
     };
   }, []);
   return ref;
+}
+
+function useScrollParallax(speed = 0.5) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const rect = el.getBoundingClientRect();
+        const center = rect.top + rect.height / 2;
+        const viewCenter = window.innerHeight / 2;
+        const offset = (center - viewCenter) * speed;
+        el.style.transform = `translateY(${offset}px)`;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [speed]);
+  return ref;
+}
+
+function useCounter(end: number, duration = 2000) {
+  const [count, setCount] = useState(0);
+  const [started, setStarted] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setStarted(true);
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.5 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!started) return;
+    let startTime: number | null = null;
+    let frame: number;
+    const step = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * end));
+      if (progress < 1) frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [started, end, duration]);
+
+  return { ref, count };
+}
+
+function useMagneticHover() {
+  const ref = useRef<HTMLAnchorElement>(null);
+  const onMove = useCallback((e: MouseEvent) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    el.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+  }, []);
+  const onLeave = useCallback(() => {
+    const el = ref.current;
+    if (el) el.style.transform = "translate(0, 0)";
+  }, []);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.transition = "transform 0.3s cubic-bezier(0.33, 1, 0.68, 1)";
+    el.addEventListener("mousemove", onMove);
+    el.addEventListener("mouseleave", onLeave);
+    return () => {
+      el.removeEventListener("mousemove", onMove);
+      el.removeEventListener("mouseleave", onLeave);
+    };
+  }, [onMove, onLeave]);
+  return ref;
+}
+
+function CursorGlow() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+    let cx = 0,
+      cy = 0,
+      tx = 0,
+      ty = 0;
+    const onMove = (e: MouseEvent) => {
+      tx = e.clientX;
+      ty = e.clientY;
+    };
+    const animate = () => {
+      cx += (tx - cx) * 0.08;
+      cy += (ty - cy) * 0.08;
+      el.style.transform = `translate(${cx - 300}px, ${cy - 300}px)`;
+      raf = requestAnimationFrame(animate);
+    };
+    window.addEventListener("mousemove", onMove);
+    raf = requestAnimationFrame(animate);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+  return (
+    <div
+      ref={ref}
+      aria-hidden
+      className="pointer-events-none fixed inset-0 z-50 h-[600px] w-[600px] rounded-full opacity-[0.07] mix-blend-screen"
+      style={{
+        background: "radial-gradient(circle, var(--accent-glow), transparent 70%)",
+        willChange: "transform",
+      }}
+    />
+  );
 }
 
 /* ─────────────────────────── chrome ─────────────────────────── */
@@ -170,63 +321,86 @@ function Nav() {
 
 /* ─────────────────────────── hero ─────────────────────────── */
 
+function HeroWord({ word, index, italic }: { word: string; index: number; italic?: boolean }) {
+  return (
+    <span
+      className={`inline-block animate-word-reveal ${italic ? "font-display italic font-normal text-brand-gradient" : "text-gradient"}`}
+      style={{ animationDelay: `${200 + index * 100}ms` }}
+    >
+      {word}
+    </span>
+  );
+}
+
 function Hero() {
   const parallaxRef = useMouseParallax();
+  const magneticCta = useMagneticHover();
   return (
     <section className="relative isolate overflow-hidden pt-44 pb-32 sm:pt-52 sm:pb-40">
       {/* Aurora blobs */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 grid-bg opacity-50" />
         <span
-          className="aurora animate-drift left-[5%] top-[8%] h-[420px] w-[420px]"
+          className="aurora animate-drift left-[5%] top-[8%] h-[420px] w-[420px] animate-breathe"
           style={{ background: "var(--accent-glow)" }}
         />
         <span
-          className="aurora animate-drift-alt right-[5%] top-[12%] h-[500px] w-[500px]"
+          className="aurora animate-drift-alt right-[5%] top-[12%] h-[500px] w-[500px] animate-breathe"
           style={{ background: "var(--accent-violet)", animationDelay: "-6s" }}
         />
         <span
-          className="aurora animate-drift left-[35%] top-[40%] h-[360px] w-[360px]"
+          className="aurora animate-drift left-[35%] top-[40%] h-[360px] w-[360px] animate-breathe"
           style={{ background: "var(--accent-cyan)", animationDelay: "-12s", opacity: 0.35 }}
         />
       </div>
 
-      <div ref={parallaxRef} className="mx-auto max-w-7xl px-6 text-center [transform-style:preserve-3d]">
+      <div
+        ref={parallaxRef}
+        className="mx-auto max-w-7xl px-6 text-center [transform-style:preserve-3d]"
+      >
         <div className="animate-fade-up mx-auto inline-flex items-center gap-2 rounded-full border border-border-strong glass px-3 py-1 font-mono text-[10px] tracking-[0.22em] text-muted-foreground">
           <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inset-0 animate-ping rounded-full" style={{ background: "var(--accent-glow)" }} />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full" style={{ background: "var(--accent-glow)" }} />
+            <span
+              className="absolute inset-0 animate-ping rounded-full"
+              style={{ background: "var(--accent-glow)" }}
+            />
+            <span
+              className="relative inline-flex h-1.5 w-1.5 rounded-full"
+              style={{ background: "var(--accent-glow)" }}
+            />
           </span>
           A PREMIUM DIGITAL STUDIO — BY KOVAA LABS
         </div>
 
         <h1
-          className="animate-fade-up display-xl mx-auto mt-8 max-w-[16ch] text-[clamp(3.4rem,11vw,10rem)]"
-          style={{ animationDelay: "60ms", transform: "translate3d(var(--mx,0), var(--my,0), 0)" }}
+          className="display-xl mx-auto mt-8 max-w-[16ch] text-[clamp(3.4rem,11vw,10rem)]"
+          style={{ transform: "translate3d(var(--mx,0), var(--my,0), 0)" }}
         >
-          <span className="block text-gradient">Engineered</span>
           <span className="block">
-            <span className="text-gradient">for </span>
-            <span className="font-display italic font-normal text-brand-gradient">obsession</span>
-            <span className="text-gradient">.</span>
+            <HeroWord word="Engineered" index={0} />
+          </span>
+          <span className="block">
+            <HeroWord word="for" index={1} /> <HeroWord word="obsession" index={2} italic />{" "}
+            <HeroWord word="." index={3} />
           </span>
         </h1>
 
         <p
           className="animate-fade-up mx-auto mt-8 max-w-xl text-balance text-[15px] leading-relaxed text-muted-foreground sm:text-base"
-          style={{ animationDelay: "140ms" }}
+          style={{ animationDelay: "600ms" }}
         >
           KVL is a small, senior studio building <span className="text-foreground">websites</span>,{" "}
           <span className="text-foreground">brand systems</span> and{" "}
-          <span className="text-foreground">social presence</span> for teams who refuse
-          to look like everyone else.
+          <span className="text-foreground">social presence</span> for teams who refuse to look like
+          everyone else.
         </p>
 
         <div
           className="animate-fade-up mt-10 flex flex-wrap items-center justify-center gap-3"
-          style={{ animationDelay: "220ms" }}
+          style={{ animationDelay: "750ms" }}
         >
           <a
+            ref={magneticCta}
             href="#contact"
             className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-foreground px-7 py-3.5 text-sm font-medium text-background shadow-glow"
           >
@@ -295,21 +469,27 @@ function Hero() {
 
           {/* Floating stat chips */}
           <div className="animate-float absolute -left-4 top-20 hidden glass-strong rounded-2xl px-4 py-3 text-left text-xs sm:block">
-            <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">Lighthouse</div>
+            <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
+              Lighthouse
+            </div>
             <div className="mt-1 font-display text-xl text-foreground">99 · 100 · 100 · 100</div>
           </div>
           <div
             className="animate-float absolute -right-2 top-1/3 hidden glass-strong rounded-2xl px-4 py-3 text-left text-xs sm:block"
             style={{ animationDelay: "-2.5s" }}
           >
-            <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">CRAFTED IN</div>
+            <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
+              CRAFTED IN
+            </div>
             <div className="mt-1 font-display text-xl text-foreground">14.2kb · 1 font</div>
           </div>
           <div
             className="animate-float absolute -bottom-6 left-1/4 hidden glass-strong rounded-2xl px-4 py-3 text-left text-xs sm:block"
             style={{ animationDelay: "-5s" }}
           >
-            <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">Engagement</div>
+            <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
+              Engagement
+            </div>
             <div className="mt-1 font-display text-xl text-brand-gradient">+312%</div>
           </div>
         </div>
@@ -347,7 +527,8 @@ function Marquee() {
     "Verge",
   ];
   return (
-    <section aria-label="Selected clients" className="relative border-y border-border py-12">
+    <section aria-label="Selected clients" className="relative py-12">
+      <div className="hairline-full absolute inset-x-0 top-0 h-px" />
       <div className="mb-6 text-center font-mono text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
         Trusted by teams who notice the details
       </div>
@@ -363,6 +544,7 @@ function Marquee() {
           ))}
         </div>
       </div>
+      <div className="hairline-full absolute inset-x-0 bottom-0 h-px" />
     </section>
   );
 }
@@ -404,8 +586,12 @@ function Services() {
           eyebrow="What we do"
           title={
             <>
-              A small studio.<br />
-              <span className="font-display italic font-normal text-brand-gradient">A full stack</span> of craft.
+              A small studio.
+              <br />
+              <span className="font-display italic font-normal text-brand-gradient">
+                A full stack
+              </span>{" "}
+              of craft.
             </>
           }
           subtitle="We work as one team across strategy, design and engineering — so the work stays coherent from first sketch to live site."
@@ -454,9 +640,23 @@ function ServiceCard({
         (reveal as React.MutableRefObject<HTMLElement | null>).current = n;
       }}
       data-visible="false"
-      className="group relative overflow-hidden rounded-3xl border border-border bg-card p-8 opacity-0 transition-all duration-700 [transform:translateY(24px)] data-[visible=true]:opacity-100 data-[visible=true]:[transform:translateY(0)] hover:border-border-strong sm:p-10"
+      className="group relative overflow-hidden rounded-3xl border border-border bg-card opacity-0 transition-all duration-700 [transform:translateY(24px)] data-[visible=true]:opacity-100 data-[visible=true]:[transform:translateY(0)] hover:border-transparent sm:p-0"
       style={{ transitionDelay: `${index * 80}ms` }}
     >
+      {/* Animated gradient border */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{
+          background:
+            "conic-gradient(from var(--border-angle, 0deg), var(--accent-cyan), var(--accent-glow), var(--accent-violet), var(--accent-cyan))",
+          animation: "rotate-border 4s linear infinite",
+          mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+          maskComposite: "exclude",
+          WebkitMaskComposite: "xor",
+          padding: "1px",
+        }}
+      />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
@@ -465,7 +665,7 @@ function ServiceCard({
             "radial-gradient(500px circle at var(--x,50%) var(--y,50%), color-mix(in oklab, var(--accent-glow) 22%, transparent), transparent 45%)",
         }}
       />
-      <div className="relative">
+      <div className="relative p-8 sm:p-10">
         <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
           <span>— {tag}</span>
           <span>KVL/{tag}</span>
@@ -522,7 +722,11 @@ function Work() {
             eyebrow="Selected work"
             title={
               <>
-                Recent <span className="font-display italic font-normal text-brand-gradient">chapters</span>.
+                Recent{" "}
+                <span className="font-display italic font-normal text-brand-gradient">
+                  chapters
+                </span>
+                .
               </>
             }
             subtitle="A short selection from the last twelve months."
@@ -568,8 +772,22 @@ function CaseCard({
     <article
       ref={reveal}
       data-visible="false"
-      className={`group relative overflow-hidden rounded-3xl border border-border bg-card opacity-0 transition-all duration-700 [transform:translateY(24px)] data-[visible=true]:opacity-100 data-[visible=true]:[transform:translateY(0)] hover:border-border-strong ${className}`}
+      className={`group relative overflow-hidden rounded-3xl border border-border bg-card opacity-0 transition-all duration-700 [transform:translateY(24px)] data-[visible=true]:opacity-100 data-[visible=true]:[transform:translateY(0)] hover:border-transparent ${className}`}
     >
+      {/* Animated gradient border */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -inset-px rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{
+          background:
+            "conic-gradient(from var(--border-angle, 0deg), var(--accent-cyan), var(--accent-glow), var(--accent-violet), var(--accent-cyan))",
+          animation: "rotate-border 4s linear infinite",
+          mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+          maskComposite: "exclude",
+          WebkitMaskComposite: "xor",
+          padding: "1px",
+        }}
+      />
       <div className={`relative overflow-hidden ${tall ? "aspect-[4/5]" : "aspect-[16/10]"}`}>
         <img
           src={img}
@@ -609,21 +827,42 @@ function CaseCard({
 
 function Process() {
   const steps = [
-    { n: "01", t: "Discover", d: "Audit, interviews and a shared brief. We start by understanding what 'good' means for you." },
-    { n: "02", t: "Define", d: "Strategy, narrative and a system of principles the work will be judged against." },
-    { n: "03", t: "Design", d: "Visual direction, prototypes, motion. We design in browser, on real devices." },
-    { n: "04", t: "Deliver", d: "Engineering, QA, launch and a handoff that doesn't leave the system stranded." },
+    {
+      n: "01",
+      t: "Discover",
+      d: "Audit, interviews and a shared brief. We start by understanding what 'good' means for you.",
+    },
+    {
+      n: "02",
+      t: "Define",
+      d: "Strategy, narrative and a system of principles the work will be judged against.",
+    },
+    {
+      n: "03",
+      t: "Design",
+      d: "Visual direction, prototypes, motion. We design in browser, on real devices.",
+    },
+    {
+      n: "04",
+      t: "Deliver",
+      d: "Engineering, QA, launch and a handoff that doesn't leave the system stranded.",
+    },
   ];
 
   return (
     <section id="process" className="relative py-32">
+      <div className="hairline-full absolute inset-x-0 top-0 h-px" />
       <div aria-hidden className="absolute inset-0 -z-10 grid-bg opacity-50" />
       <div className="mx-auto max-w-7xl px-6">
         <SectionHeader
           eyebrow="Process"
           title={
             <>
-              Four <span className="font-display italic font-normal text-brand-gradient">deliberate</span> steps.
+              Four{" "}
+              <span className="font-display italic font-normal text-brand-gradient">
+                deliberate
+              </span>{" "}
+              steps.
             </>
           }
           subtitle="No theatre. Just a tight loop between thinking and shipping."
@@ -673,11 +912,28 @@ function ProcessStep({
 
 /* ─────────────────────────── studio ─────────────────────────── */
 
+function CounterStat({ value, suffix, label }: { value: number; suffix: string; label: string }) {
+  const { ref, count } = useCounter(value);
+  return (
+    <div ref={ref}>
+      <dt className="display-xl text-5xl text-gradient">
+        {count}
+        {suffix}
+      </dt>
+      <dd className="mt-2 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+        {label}
+      </dd>
+    </div>
+  );
+}
+
 function Studio() {
+  const imgParallax = useScrollParallax(-0.08);
   return (
     <section id="studio" className="relative py-32">
+      <div className="hairline-full absolute inset-x-0 top-0 h-px" />
       <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:items-center">
-        <div className="relative">
+        <div className="relative" ref={imgParallax}>
           <div className="relative overflow-hidden rounded-3xl border border-border-strong glass-strong">
             <img
               src={wireSphere}
@@ -703,34 +959,34 @@ function Studio() {
             </div>
           </div>
           <div className="animate-float absolute -bottom-6 -right-6 hidden glass-strong rounded-2xl p-4 sm:block">
-            <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Studio</div>
-            <div className="mt-1 font-display text-xl text-gradient">Small. Senior. Slow on purpose.</div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+              Studio
+            </div>
+            <div className="mt-1 font-display text-xl text-gradient">
+              Small. Senior. Slow on purpose.
+            </div>
           </div>
         </div>
 
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">— The studio</div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+            — The studio
+          </div>
           <h2 className="display-xl mt-6 text-5xl text-gradient sm:text-7xl">
             A handful of senior people.{" "}
-            <span className="font-display italic font-normal text-brand-gradient">No junior layer.</span>
+            <span className="font-display italic font-normal text-brand-gradient">
+              No junior layer.
+            </span>
           </h2>
           <p className="mt-7 max-w-md text-[15px] leading-relaxed text-muted-foreground">
-            KVL is a studio inside Kovaa Labs. We take on a small number of
-            engagements a year so the work stays sharp — and the people on the
-            page are the people on the call.
+            KVL is a studio inside Kovaa Labs. We take on a small number of engagements a year so
+            the work stays sharp — and the people on the page are the people on the call.
           </p>
 
           <dl className="mt-12 grid grid-cols-3 gap-6 border-t border-border pt-8">
-            {[
-              ["12+", "Years on craft"],
-              ["40+", "Shipped systems"],
-              ["6", "Slots / year"],
-            ].map(([k, v]) => (
-              <div key={v}>
-                <dt className="display-xl text-5xl text-gradient">{k}</dt>
-                <dd className="mt-2 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{v}</dd>
-              </div>
-            ))}
+            <CounterStat value={12} suffix="+" label="Years on craft" />
+            <CounterStat value={40} suffix="+" label="Shipped systems" />
+            <CounterStat value={6} suffix="" label="Slots / year" />
           </dl>
         </div>
       </div>
@@ -755,17 +1011,21 @@ function CTA() {
               style={{ background: "var(--accent-violet)", animationDelay: "-8s" }}
             />
           </div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.28em] text-muted-foreground">— Let's talk</div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
+            — Let's talk
+          </div>
           <h2 className="display-xl mt-6 text-[clamp(2.6rem,7vw,6.5rem)]">
             <span className="block text-gradient">Have something</span>
             <span className="block">
-              <span className="font-display italic font-normal text-brand-gradient">worth building</span>
+              <span className="font-display italic font-normal text-brand-gradient">
+                worth building
+              </span>
               <span className="text-gradient">?</span>
             </span>
           </h2>
           <p className="mx-auto mt-7 max-w-md text-base text-muted-foreground">
-            Tell us about the project. We reply within two working days — with a
-            real human and a real opinion.
+            Tell us about the project. We reply within two working days — with a real human and a
+            real opinion.
           </p>
 
           <form
@@ -799,13 +1059,14 @@ function CTA() {
 
 function Footer() {
   return (
-    <footer className="relative border-t border-border py-16">
+    <footer className="relative py-16">
+      <div className="hairline-full absolute inset-x-0 top-0 h-px" />
       <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 sm:flex-row sm:items-start sm:justify-between">
         <div className="max-w-sm">
           <Mark />
           <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
-            KVL is the studio practice of Kovaa Labs — building premium digital
-            work for ambitious teams.
+            KVL is the studio practice of Kovaa Labs — building premium digital work for ambitious
+            teams.
           </p>
         </div>
         <div className="grid grid-cols-3 gap-12 text-sm">
@@ -815,11 +1076,16 @@ function Footer() {
             ["Legal", ["Imprint", "Privacy", "Terms"]],
           ].map(([h, items]) => (
             <div key={h as string}>
-              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{h}</div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+                {h}
+              </div>
               <ul className="mt-5 space-y-2.5">
                 {(items as string[]).map((i) => (
                   <li key={i}>
-                    <a href="#" className="text-foreground/75 transition-colors hover:text-foreground">
+                    <a
+                      href="#"
+                      className="text-foreground/75 transition-colors hover:text-foreground"
+                    >
                       {i}
                     </a>
                   </li>
@@ -876,7 +1142,9 @@ function SectionHeader({
       </div>
       <h2 className="display-xl mt-6 text-5xl text-gradient sm:text-7xl">{title}</h2>
       {subtitle && (
-        <p className={`mt-6 text-[15px] leading-relaxed text-muted-foreground sm:text-base ${align === "center" ? "mx-auto max-w-xl" : "max-w-xl"}`}>
+        <p
+          className={`mt-6 text-[15px] leading-relaxed text-muted-foreground sm:text-base ${align === "center" ? "mx-auto max-w-xl" : "max-w-xl"}`}
+        >
           {subtitle}
         </p>
       )}
@@ -887,8 +1155,10 @@ function SectionHeader({
 /* ─────────────────────────── home ─────────────────────────── */
 
 function Home() {
+  useLenis();
   return (
     <main className="relative min-h-screen overflow-x-hidden">
+      <CursorGlow />
       <TopTicker />
       <Nav />
       <Hero />
