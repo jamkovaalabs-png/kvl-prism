@@ -337,20 +337,46 @@ function Hero() {
   const magneticCta = useMagneticHover();
   return (
     <section className="relative isolate overflow-hidden pt-44 pb-32 sm:pt-52 sm:pb-40">
-      {/* Aurora blobs */}
+      {/* Deep space — rising sun + star field */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 grid-bg opacity-50" />
-        <span
-          className="aurora animate-drift left-[5%] top-[8%] h-[420px] w-[420px] animate-breathe"
-          style={{ background: "var(--accent-glow)" }}
+        <div className="absolute inset-0 grid-bg opacity-30" />
+        {/* Star field */}
+        <div className="absolute inset-0 star-field animate-star-twinkle" />
+        <div
+          className="absolute inset-0 star-field animate-star-twinkle"
+          style={{ transform: "rotate(180deg) scale(1.5)", animationDelay: "-2s", opacity: 0.5 }}
         />
-        <span
-          className="aurora animate-drift-alt right-[5%] top-[12%] h-[500px] w-[500px] animate-breathe"
-          style={{ background: "var(--accent-violet)", animationDelay: "-6s" }}
+        {/* Horizon line */}
+        <div
+          className="absolute inset-x-0 bottom-[8%] h-px"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent 5%, color-mix(in oklab, var(--accent-cyan) 40%, transparent) 30%, color-mix(in oklab, var(--accent-glow) 60%, transparent) 50%, color-mix(in oklab, var(--accent-cyan) 40%, transparent) 70%, transparent 95%)",
+          }}
         />
-        <span
-          className="aurora animate-drift left-[35%] top-[40%] h-[360px] w-[360px] animate-breathe"
-          style={{ background: "var(--accent-cyan)", animationDelay: "-12s", opacity: 0.35 }}
+        {/* Rising sun glow — the arc peaking from below */}
+        <div
+          className="absolute inset-x-0 -bottom-[40%] h-[80%] animate-sun-breathe"
+          style={{
+            background:
+              "radial-gradient(ellipse 60% 50% at 50% 100%, color-mix(in oklab, var(--accent-glow) 50%, transparent), color-mix(in oklab, var(--accent-glow) 15%, transparent) 40%, transparent 70%)",
+          }}
+        />
+        {/* Tight sun core — brighter arc at the horizon */}
+        <div
+          className="absolute inset-x-0 -bottom-[10%] h-[30%]"
+          style={{
+            background:
+              "radial-gradient(ellipse 40% 60% at 50% 100%, color-mix(in oklab, var(--accent-cyan) 35%, transparent), transparent 60%)",
+          }}
+        />
+        {/* Light rays — subtle vertical streaks */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-[60%] opacity-[0.08]"
+          style={{
+            background:
+              "conic-gradient(from 260deg at 50% 100%, transparent 0deg, color-mix(in oklab, var(--accent-glow) 40%, transparent) 5deg, transparent 10deg, transparent 15deg, color-mix(in oklab, var(--accent-cyan) 30%, transparent) 18deg, transparent 22deg, transparent 30deg, color-mix(in oklab, var(--accent-glow) 25%, transparent) 33deg, transparent 38deg, transparent 50deg, color-mix(in oklab, var(--accent-violet) 20%, transparent) 53deg, transparent 58deg, transparent 360deg)",
+          }}
         />
       </div>
 

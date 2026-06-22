@@ -112,19 +112,15 @@
   body {
     background-image:
       radial-gradient(
-        ellipse 80% 60% at 50% -10%,
-        color-mix(in oklab, var(--accent-glow) 28%, transparent),
-        transparent 60%
+        ellipse 120% 30% at 50% 105%,
+        color-mix(in oklab, var(--accent-glow) 40%, transparent),
+        color-mix(in oklab, var(--accent-glow) 12%, transparent) 40%,
+        transparent 70%
       ),
       radial-gradient(
-        ellipse 60% 50% at 100% 20%,
-        color-mix(in oklab, var(--accent-violet) 22%, transparent),
-        transparent 60%
-      ),
-      radial-gradient(
-        ellipse 50% 40% at 0% 60%,
-        color-mix(in oklab, var(--accent-cyan) 14%, transparent),
-        transparent 60%
+        ellipse 80% 15% at 50% 102%,
+        color-mix(in oklab, var(--accent-cyan) 25%, transparent),
+        transparent 50%
       );
     background-attachment: fixed;
     position: relative;
@@ -220,6 +216,64 @@
   filter: blur(80px);
   opacity: 0.55;
   mix-blend-mode: screen;
+}
+
+@utility star-field {
+  background-image:
+    radial-gradient(1.5px 1.5px at 20% 15%, oklch(0.95 0.02 250 / 0.7), transparent),
+    radial-gradient(1px 1px at 40% 35%, oklch(0.9 0.01 220 / 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 65% 8%, oklch(0.88 0.03 260 / 0.6), transparent),
+    radial-gradient(1px 1px at 80% 45%, oklch(0.85 0.01 240 / 0.4), transparent),
+    radial-gradient(1px 1px at 10% 60%, oklch(0.9 0.02 250 / 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 55% 55%, oklch(0.92 0.015 230 / 0.55), transparent),
+    radial-gradient(1px 1px at 90% 20%, oklch(0.87 0.02 270 / 0.45), transparent),
+    radial-gradient(1px 1px at 30% 80%, oklch(0.85 0.01 250 / 0.35), transparent),
+    radial-gradient(1.5px 1.5px at 75% 70%, oklch(0.9 0.02 240 / 0.5), transparent),
+    radial-gradient(1px 1px at 5% 40%, oklch(0.88 0.015 260 / 0.4), transparent),
+    radial-gradient(1px 1px at 45% 90%, oklch(0.86 0.01 250 / 0.35), transparent),
+    radial-gradient(1.5px 1.5px at 95% 75%, oklch(0.91 0.02 255 / 0.45), transparent),
+    radial-gradient(1px 1px at 15% 95%, oklch(0.84 0.01 240 / 0.3), transparent),
+    radial-gradient(1px 1px at 60% 30%, oklch(0.89 0.02 260 / 0.45), transparent),
+    radial-gradient(1.5px 1.5px at 35% 50%, oklch(0.93 0.01 230 / 0.5), transparent),
+    radial-gradient(1px 1px at 85% 5%, oklch(0.87 0.015 250 / 0.4), transparent),
+    radial-gradient(1px 1px at 50% 70%, oklch(0.86 0.02 245 / 0.35), transparent),
+    radial-gradient(1.5px 1.5px at 25% 25%, oklch(0.9 0.01 255 / 0.5), transparent);
+}
+
+@utility rising-sun {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sun-breathe {
+  0%,
+  100% {
+    opacity: 0.7;
+    filter: blur(0px);
+  }
+  50% {
+    opacity: 0.85;
+    filter: blur(2px);
+  }
+}
+
+@utility animate-star-twinkle {
+  animation: star-twinkle 4s ease-in-out infinite;
+}
+
+@utility animate-sun-breathe {
+  animation: sun-breathe 6s ease-in-out infinite;
 }
 
 /* Animations */
