@@ -337,45 +337,100 @@ function Hero() {
   const magneticCta = useMagneticHover();
   return (
     <section className="relative isolate overflow-hidden pt-44 pb-32 sm:pt-52 sm:pb-40">
-      {/* Deep space — rising sun + star field */}
+      {/* Deep space — glowing sun + nebulas + star field */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 grid-bg opacity-30" />
+        <div className="absolute inset-0 grid-bg opacity-20" />
+
         {/* Star field */}
         <div className="absolute inset-0 star-field animate-star-twinkle" />
         <div
           className="absolute inset-0 star-field animate-star-twinkle"
           style={{ transform: "rotate(180deg) scale(1.5)", animationDelay: "-2s", opacity: 0.5 }}
         />
+
+        {/* Nebula clouds — gaseous space clouds */}
+        <div
+          className="absolute left-[-10%] top-[5%] h-[500px] w-[700px] rounded-full opacity-[0.35] mix-blend-screen animate-breathe"
+          style={{
+            background:
+              "radial-gradient(ellipse at 40% 50%, oklch(0.45 0.18 260), oklch(0.3 0.15 280) 40%, transparent 70%)",
+            filter: "blur(60px)",
+          }}
+        />
+        <div
+          className="absolute right-[-5%] top-[15%] h-[400px] w-[600px] rounded-full opacity-[0.28] mix-blend-screen animate-breathe"
+          style={{
+            background:
+              "radial-gradient(ellipse at 60% 40%, oklch(0.5 0.2 285), oklch(0.35 0.12 250) 45%, transparent 70%)",
+            filter: "blur(70px)",
+            animationDelay: "-4s",
+          }}
+        />
+        <div
+          className="absolute left-[20%] bottom-[30%] h-[350px] w-[500px] rounded-full opacity-[0.22] mix-blend-screen animate-breathe"
+          style={{
+            background:
+              "radial-gradient(ellipse at 50% 60%, oklch(0.4 0.16 220), oklch(0.3 0.1 245) 50%, transparent 70%)",
+            filter: "blur(80px)",
+            animationDelay: "-8s",
+          }}
+        />
+
+        {/* The Sun — actual visible glowing disc */}
+        <div className="absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2">
+          {/* Outermost corona — huge soft glow */}
+          <div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full animate-sun-breathe"
+            style={{
+              background:
+                "radial-gradient(circle, oklch(0.5 0.2 252 / 0.35), oklch(0.4 0.14 260 / 0.1) 40%, transparent 65%)",
+            }}
+          />
+          {/* Mid corona ring */}
+          <div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[320px] w-[320px] rounded-full animate-sun-breathe"
+            style={{
+              background:
+                "radial-gradient(circle, oklch(0.6 0.22 250 / 0.5), oklch(0.45 0.18 258 / 0.15) 50%, transparent 75%)",
+              animationDelay: "-1s",
+            }}
+          />
+          {/* Sun disc — the core bright circle */}
+          <div
+            className="relative h-[160px] w-[160px] rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, oklch(0.9 0.14 235) 0%, oklch(0.78 0.2 245) 30%, oklch(0.6 0.24 255) 60%, oklch(0.45 0.2 262) 85%, transparent 100%)",
+              boxShadow:
+                "0 0 40px 15px oklch(0.8 0.18 242 / 0.7), 0 0 100px 50px oklch(0.6 0.24 250 / 0.5), 0 0 200px 100px oklch(0.5 0.2 256 / 0.3), 0 0 350px 180px oklch(0.4 0.15 263 / 0.15)",
+            }}
+          />
+        </div>
+
+        {/* Horizon glow beneath the sun */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-[45%]"
+          style={{
+            background:
+              "radial-gradient(ellipse 90% 70% at 50% 100%, oklch(0.4 0.18 252 / 0.6), oklch(0.3 0.12 258 / 0.25) 40%, transparent 70%)",
+          }}
+        />
+
         {/* Horizon line */}
         <div
-          className="absolute inset-x-0 bottom-[8%] h-px"
+          className="absolute inset-x-0 bottom-[6%] h-[2px]"
           style={{
             background:
-              "linear-gradient(90deg, transparent 5%, color-mix(in oklab, var(--accent-cyan) 40%, transparent) 30%, color-mix(in oklab, var(--accent-glow) 60%, transparent) 50%, color-mix(in oklab, var(--accent-cyan) 40%, transparent) 70%, transparent 95%)",
+              "linear-gradient(90deg, transparent 5%, oklch(0.6 0.2 248 / 0.6) 30%, oklch(0.75 0.22 242 / 0.9) 50%, oklch(0.6 0.2 248 / 0.6) 70%, transparent 95%)",
           }}
         />
-        {/* Rising sun glow — the arc peaking from below */}
+
+        {/* Light rays from the sun */}
         <div
-          className="absolute inset-x-0 -bottom-[40%] h-[80%] animate-sun-breathe"
+          className="absolute inset-x-0 bottom-[6%] h-[55%] opacity-[0.12]"
           style={{
             background:
-              "radial-gradient(ellipse 60% 50% at 50% 100%, color-mix(in oklab, var(--accent-glow) 50%, transparent), color-mix(in oklab, var(--accent-glow) 15%, transparent) 40%, transparent 70%)",
-          }}
-        />
-        {/* Tight sun core — brighter arc at the horizon */}
-        <div
-          className="absolute inset-x-0 -bottom-[10%] h-[30%]"
-          style={{
-            background:
-              "radial-gradient(ellipse 40% 60% at 50% 100%, color-mix(in oklab, var(--accent-cyan) 35%, transparent), transparent 60%)",
-          }}
-        />
-        {/* Light rays — subtle vertical streaks */}
-        <div
-          className="absolute inset-x-0 bottom-0 h-[60%] opacity-[0.08]"
-          style={{
-            background:
-              "conic-gradient(from 260deg at 50% 100%, transparent 0deg, color-mix(in oklab, var(--accent-glow) 40%, transparent) 5deg, transparent 10deg, transparent 15deg, color-mix(in oklab, var(--accent-cyan) 30%, transparent) 18deg, transparent 22deg, transparent 30deg, color-mix(in oklab, var(--accent-glow) 25%, transparent) 33deg, transparent 38deg, transparent 50deg, color-mix(in oklab, var(--accent-violet) 20%, transparent) 53deg, transparent 58deg, transparent 360deg)",
+              "conic-gradient(from 250deg at 50% 100%, transparent 0deg, oklch(0.6 0.22 248 / 0.6) 3deg, transparent 7deg, transparent 12deg, oklch(0.55 0.2 255 / 0.5) 15deg, transparent 19deg, transparent 25deg, oklch(0.5 0.18 242 / 0.45) 28deg, transparent 33deg, transparent 42deg, oklch(0.6 0.22 258 / 0.4) 45deg, transparent 50deg, transparent 60deg, oklch(0.5 0.18 252 / 0.4) 63deg, transparent 68deg, transparent 360deg)",
           }}
         />
       </div>
