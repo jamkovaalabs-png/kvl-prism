@@ -87,8 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "KVL — A Premium Digital Agency" },
       {
         property: "og:description",
-        content:
-          "Websites, brand systems and social media for ambitious teams. By Kovaa Labs.",
+        content: "Websites, brand systems and social media for ambitious teams. By Kovaa Labs.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
