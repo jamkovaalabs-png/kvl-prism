@@ -529,21 +529,21 @@ function Hero() {
                 <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
               </div>
               <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                kvl.studio / case-001
+                kvl.studio / case-001 — indirapuram
               </div>
             </div>
             <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between text-left">
               <div>
                 <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                  Featured · 2026
+                  Featured · 2025
                 </div>
                 <div className="mt-2 font-display text-3xl text-foreground sm:text-4xl">
-                  Aurora — Brand & site relaunch
+                  Thirty Two Bites — Brand & web
                 </div>
               </div>
               <div className="hidden text-right font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground sm:block">
-                <div>Strategy · Identity · Web</div>
-                <div className="mt-1.5">+312% engagement</div>
+                <div>Brand · Identity · Web</div>
+                <div className="mt-1.5">Indirapuram, Ghaziabad</div>
               </div>
             </div>
           </div>
@@ -569,9 +569,9 @@ function Hero() {
             style={{ animationDelay: "-5s" }}
           >
             <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
-              Engagement
+              Patient bookings
             </div>
-            <div className="mt-1 font-display text-xl text-brand-gradient">+312%</div>
+            <div className="mt-1 font-display text-xl text-brand-gradient">+180%</div>
           </div>
         </div>
 
@@ -594,24 +594,18 @@ function Hero() {
 
 function Marquee() {
   const items = [
-    "Aurora",
-    "Northbeam",
-    "Helix Labs",
-    "Monogram",
-    "Field Notes",
-    "Parallel",
-    "Foundry",
-    "Lumen",
-    "Sable",
-    "Quanta",
-    "Atlas",
-    "Verge",
+    "Thirty Two Bites",
+    "Radiance Dental",
+    "Thirty Two Bites",
+    "Radiance Dental",
+    "Thirty Two Bites",
+    "Radiance Dental",
   ];
   return (
     <section aria-label="Selected clients" className="relative py-12">
       <div className="hairline-full absolute inset-x-0 top-0 h-px" />
       <div className="mb-6 text-center font-mono text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
-        Trusted by teams who notice the details
+        Clients we've built for
       </div>
       <div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]">
         <div className="animate-marquee flex w-max items-center gap-16 pr-16">
@@ -774,24 +768,17 @@ function Work() {
   const cases = [
     {
       n: "001",
-      name: "Aurora",
+      name: "Thirty Two Bites",
       tag: "Brand · Web",
-      desc: "Repositioning a climate fintech with a system built for trust and motion.",
+      desc: "A modern dental clinic in Indirapuram deserved a brand that felt as clean as the care. We built it from mark to motion.",
       img: heroOrb,
     },
     {
       n: "002",
-      name: "Helix Labs",
-      tag: "Identity · Social",
-      desc: "A monospace-driven identity for a research lab shipping into the open.",
+      name: "Radiance Dental",
+      tag: "Identity · Web",
+      desc: "Positioning a premium dental practice in Ghaziabad with warmth, clarity and a system built to scale across touchpoints.",
       img: wireSphere,
-    },
-    {
-      n: "003",
-      name: "Northbeam",
-      tag: "Product UI",
-      desc: "A calmer dashboard for a noisy category. Less chart, more clarity.",
-      img: layerShards,
     },
   ];
 
@@ -810,7 +797,7 @@ function Work() {
                 .
               </>
             }
-            subtitle="A short selection from the last twelve months."
+            subtitle="Two projects. Both dental. Both built with obsessive care."
             align="left"
           />
           <a
@@ -821,10 +808,9 @@ function Work() {
           </a>
         </div>
 
-        <div className="mt-16 grid gap-4 lg:grid-cols-3">
-          <CaseCard {...cases[0]} className="lg:row-span-2" tall />
-          <CaseCard {...cases[1]} className="lg:col-span-2" />
-          <CaseCard {...cases[2]} className="lg:col-span-2" />
+        <div className="mt-16 grid gap-4 md:grid-cols-2">
+          <CaseCard {...cases[0]} tall />
+          <CaseCard {...cases[1]} tall />
         </div>
       </div>
     </section>
@@ -1065,9 +1051,9 @@ function Studio() {
           </p>
 
           <dl className="mt-12 grid grid-cols-3 gap-6 border-t border-border pt-8">
-            <CounterStat value={12} suffix="+" label="Years on craft" />
-            <CounterStat value={40} suffix="+" label="Shipped systems" />
-            <CounterStat value={6} suffix="" label="Slots / year" />
+            <CounterStat value={2} suffix="" label="Projects shipped" />
+            <CounterStat value={3} suffix="+" label="Years on craft" />
+            <CounterStat value={4} suffix="" label="Slots / year" />
           </dl>
         </div>
       </div>
